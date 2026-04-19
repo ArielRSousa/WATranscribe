@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WATranscribe</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b141a;
+      --card: #111b21;
+      --text: #e9edef;
+      --muted: #8696a0;
+      --accent: #00a884;
+      --danger: #d64545;
+      --line: #1f2c33;
+    }
+    body {
+      width: 360px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      padding: 12px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #12362e, #102a24);
+    }
+    .brand-logo {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .title { font-size: 16px; font-weight: 700; }
+    .subtitle { margin-top: 2px; color: #b7c5cc; font-size: 12px; }
+    .section { padding: 12px 14px; border-top: 1px solid var(--line); }
+    .section:first-of-type { border-top: none; }
+    .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    select {
+      width: 100%;
+      margin-top: 8px;
+      background: #0f171c;
+      color: var(--text);
+      border: 1px solid #28414b;
+      border-radius: 8px;
+      padding: 9px;
+      outline: none;
+    }
+    .row { display: flex; gap: 8px; margin-top: 10px; }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #06251e; flex: 1; }
+    .btn-secondary { background: #1c2a31; color: #d6e1e6; }
+    .btn-danger { background: #3a1b1b; color: #ffbcbc; border: 1px solid #5a2a2a; }
+    .feedback { margin-top: 8px; min-height: 16px; font-size: 12px; color: #89d9c8; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #173129;
+      color: #9de7d8;
+      border: 1px solid #245545;
+    }
+    .models { margin-top: 10px; display: grid; gap: 8px; }
+    .model-item {
+      border: 1px solid #263740;
+      background: #10191f;
+      border-radius: 9px;
+      padding: 8px;
+    }
+    .model-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .model-name { font-weight: 600; font-size: 13px; }
+    .model-meta { color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .badge {
+      font-size: 10px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .is-downloaded { color: #9ce6d7; background: #173129; border-color: #245545; }
+    .not-downloaded { color: #b0bec5; background: #1f2b31; border-color: #2e434d; }
+    .in-use { color: #08251f; background: #00a884; border-color: #00a884; font-weight: 700; }
+    .hint { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="header">
+      <img class="brand-logo" src="assets/WATranscribe-Texto-e-Icon.png" alt="WATranscribe logo" />
+      <div class="title">WATranscribe</div>
+      <div class="subtitle">Controle de modelos locais (Whisper)</div>
+    </div>
+
+    <div class="section">
+      <div class="label">Modelo em uso</div>
+      <select id="modelSelect"></select>
+      <div class="row">
+        <button id="saveBtn" class="btn-primary">Salvar modelo</button>
+        <button id="refreshBtn" class="btn-secondary">Atualizar</button>
+      </div>
+      <div id="activeChip" class="chip">Carregando...</div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="section">
+      <div class="label">Modelos e cache local</div>
+      <div class="row" style="margin-top:8px">
+        <button id="clearAllBtn" class="btn-danger">Remover todos os modelos baixados</button>
+      </div>
+      <div id="modelsList" class="models"></div>
+      <div class="hint">
+        Remoção limpa o cache do browser usado pelo `transformers.js`. Na próxima transcrição, o modelo será baixado novamente.
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

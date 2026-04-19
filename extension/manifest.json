@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "WATranscribe",
+  "version": "2.1.0",
+  "description": "Transcreve áudios do WhatsApp Web com Whisper — 100% local, sem servidor, sem custo",
+  "icons": {
+    "16": "assets/icon-16.png",
+    "32": "assets/icon-32.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "offscreen",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://cdn.jsdelivr.net/*",
+    "https://huggingface.co/*",
+    "https://*.huggingface.co/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["injected.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WATranscribe",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "32": "assets/icon-32.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  }
+}
