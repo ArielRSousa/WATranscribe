@@ -43,7 +43,12 @@ chrome.runtime.onMessage.addListener((msg, _sender) => {
 
 // ─── Transcrição ──────────────────────────────────────────────────────────────
 
-async function runTranscription({ audioBase64, mimeType, isRaw, model, tabId }) {
+async function runTranscription({ audioBase64, mimeType, isRaw, model, provider, groqApiKey, tabId }) {
+  if ((provider || 'groq') === 'groq') {
+    notify('Enviando audio para Groq...', tabId);
+    return transcribeWithGroq({ audioBase64, mimeType, groqApiKey });
+  }
+
   const modelId = model || 'Xenova/whisper-base';
 
   if (!transcriber || currentModel !== modelId) {
@@ -71,6 +76,43 @@ async function runTranscription({ audioBase64, mimeType, isRaw, model, tabId }) 
   });
 
   return result.text.trim();
+}
+
+async function transcribeWithGroq({ audioBase64, mimeType, groqApiKey }) {
+  if (!groqApiKey) {
+    throw new Error('GROQ_API_KEY ausente. Configure no popup da extensao.');
+  }
+
+  const bytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+  const type = mimeType || 'audio/ogg';
+  const ext = guessAudioExtension(type);
+  const blob = new Blob([bytes], { type });
+  const file = new File([blob], `audio.${ext}`, { type });
+
+  const form = new FormData();
+  form.append('file', file);
+  form.append('model', 'whisper-large-v3-turbo');
+  form.append('language', 'pt');
+  form.append('response_format', 'json');
+  form.append('temperature', '0');
+
+  const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${groqApiKey}`,
+    },
+    body: form,
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const detail = payload?.error?.message || 'Erro ao chamar Groq';
+    throw new Error(detail);
+  }
+
+  const text = payload?.text?.trim();
+  if (!text) throw new Error('Groq retornou transcricao vazia.');
+  return text;
 }
 
 // ─── Carregamento de modelo ───────────────────────────────────────────────────
@@ -111,4 +153,13 @@ async function decodeAudioBlob(base64, mimeType) {
 
 function notify(message, tabId) {
   chrome.runtime.sendMessage({ action: 'whisperProgress', message, tabId });
+}
+
+function guessAudioExtension(mimeType) {
+  const normalized = (mimeType || '').toLowerCase();
+  if (normalized.includes('mpeg') || normalized.includes('mp3')) return 'mp3';
+  if (normalized.includes('wav')) return 'wav';
+  if (normalized.includes('webm')) return 'webm';
+  if (normalized.includes('mp4')) return 'm4a';
+  return 'ogg';
 }

@@ -27,7 +27,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     const tabId = sender.tab?.id;
     ensureOffscreen()
-      .then(() => chrome.runtime.sendMessage({ ...msg, target: 'offscreen', tabId }))
+      .then(async () => {
+        const stored = await chrome.storage.sync.get(['transcriptionProvider', 'groqApiKey']);
+        const provider = msg.provider || stored.transcriptionProvider || 'groq';
+        const groqApiKey = msg.groqApiKey || stored.groqApiKey || '';
+
+        return chrome.runtime.sendMessage({
+          ...msg,
+          provider,
+          groqApiKey,
+          target: 'offscreen',
+          tabId,
+        });
+      })
       .catch(err => {
         // Se o offscreen falhar ao criar, avisa a aba
         if (tabId) {

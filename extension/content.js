@@ -63,7 +63,7 @@ function addTranscribeBtn(msgContainer) {
   const btn = document.createElement('button');
   btn.className = 'wpp-tr-msg-btn';
   btn.textContent = '📝 Transcrever';
-  btn.title = 'Transcrever com Whisper (local, sem custo)';
+  btn.title = 'Transcrever audio';
   btn.addEventListener('click', e => {
     e.stopPropagation();
     handleTranscription(msgContainer, btn, messageId);
@@ -99,18 +99,24 @@ function handleTranscription(msgContainer, btn, messageId) {
       return;
     }
     if (e.data.type === 'audio-ready') {
-      btn.textContent = '⏳ Carregando Whisper...';
-      showResult(msgContainer, 'Transcrevendo com Whisper (pode demorar na 1ª vez)...', 'loading');
+      btn.textContent = '⏳ Preparando transcricao...';
 
       // Fire-and-forget: resultado vem por onMessage (transcriptionResult)
       // para não depender do canal do service worker ficar aberto.
-      getModel().then(model => {
+      getTranscriptionSettings().then(({ model, provider, groqApiKey }) => {
+        const providerLabel = provider === 'local'
+          ? `Whisper local (${model.split('/')[1] || 'base'})`
+          : 'Groq';
+        showResult(msgContainer, `Preparando transcricao (${providerLabel})...`, 'loading');
+
         chrome.runtime.sendMessage({
           action:      'transcribe',
           audioBase64: e.data.audioBase64,
           isRaw:       false,
           mimeType:    e.data.mimeType,
           model,
+          provider,
+          groqApiKey,
           messageId,
         });
       });
@@ -228,14 +234,24 @@ chrome.runtime.onMessage.addListener((msg) => {
     if (btn) btn.textContent = '⏳ ' + msg.message;
     showResult(msgContainer, msg.message, 'loading');
   }
+
+  if (msg.action === 'forceReloadContentScript') {
+    window.location.reload();
+  }
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function getModel() {
-  return new Promise(r =>
-    chrome.storage.sync.get('model', d => r(d.model || 'Xenova/whisper-base'))
-  );
+function getTranscriptionSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['model', 'transcriptionProvider', 'groqApiKey'], (data) => {
+      resolve({
+        model: data.model || 'Xenova/whisper-base',
+        provider: data.transcriptionProvider || 'groq',
+        groqApiKey: data.groqApiKey || '',
+      });
+    });
+  });
 }
 
 function escapeHtml(str) {

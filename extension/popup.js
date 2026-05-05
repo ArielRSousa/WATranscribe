@@ -5,6 +5,9 @@ const MODELS = [
   { id: 'Xenova/whisper-medium', name: 'medium', size: '~1.5 GB', note: 'melhor qualidade' },
 ];
 
+const DEFAULT_PROVIDER = 'groq';
+const DEFAULT_MODEL = 'Xenova/whisper-base';
+
 const modelSelect = document.getElementById('modelSelect');
 const saveBtn = document.getElementById('saveBtn');
 const refreshBtn = document.getElementById('refreshBtn');
@@ -12,18 +15,51 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 const feedback = document.getElementById('feedback');
 const activeChip = document.getElementById('activeChip');
 const modelsList = document.getElementById('modelsList');
+const providerSelect = document.getElementById('providerSelect');
+const groqApiKeyInput = document.getElementById('groqApiKeyInput');
+const saveProviderBtn = document.getElementById('saveProviderBtn');
+const providerFeedback = document.getElementById('providerFeedback');
 
 init().catch((err) => setFeedback(`Erro ao iniciar: ${err.message}`, true));
 
+providerSelect.addEventListener('change', () => {
+  groqApiKeyInput.disabled = providerSelect.value !== 'groq';
+});
+
 saveBtn.addEventListener('click', async () => {
-  await chrome.storage.sync.set({ model: modelSelect.value });
+  await chrome.storage.sync.set({
+    model: modelSelect.value,
+    transcriptionProvider: 'local',
+  });
   await refreshUI();
-  setFeedback('Modelo salvo com sucesso.');
+  setFeedback('Modelo salvo com sucesso (Whisper local ativo).');
+  setProviderFeedback('Whisper local ativo (sem custo de API).');
 });
 
 refreshBtn.addEventListener('click', async () => {
   await refreshUI();
   setFeedback('Status atualizado.');
+});
+
+saveProviderBtn.addEventListener('click', async () => {
+  const provider = providerSelect.value;
+  const apiKey = groqApiKeyInput.value.trim();
+
+  if (provider === 'groq' && !apiKey) {
+    setProviderFeedback('Informe a GROQ_API_KEY para usar a Groq.', true);
+    return;
+  }
+
+  const payload = { transcriptionProvider: provider };
+  if (apiKey) payload.groqApiKey = apiKey;
+
+  await chrome.storage.sync.set(payload);
+  await refreshUI();
+  setProviderFeedback(
+    provider === 'groq'
+      ? 'Groq salva com sucesso.'
+      : 'Whisper local salvo com sucesso.'
+  );
 });
 
 clearAllBtn.addEventListener('click', async () => {
@@ -51,13 +87,30 @@ async function init() {
 }
 
 async function refreshUI() {
-  const stored = await chrome.storage.sync.get('model');
-  const current = stored.model || 'Xenova/whisper-base';
+  const stored = await chrome.storage.sync.get(['model', 'transcriptionProvider', 'groqApiKey']);
+  const current = stored.model || DEFAULT_MODEL;
+  const provider = stored.transcriptionProvider || DEFAULT_PROVIDER;
   modelSelect.value = current;
+  providerSelect.value = provider;
+  groqApiKeyInput.value = stored.groqApiKey || '';
+  groqApiKeyInput.disabled = provider !== 'groq';
   activeChip.textContent = `Em uso: ${formatModel(current)}`;
+  updateProviderHint(provider, !!stored.groqApiKey);
 
   const cacheState = await getCacheState();
   renderModelList(current, cacheState);
+}
+
+function updateProviderHint(provider, hasApiKey) {
+  if (provider === 'groq') {
+    if (hasApiKey) {
+      setProviderFeedback('Groq ativa.');
+    } else {
+      setProviderFeedback('Groq selecionada. Cole sua GROQ_API_KEY para transcrever.', true);
+    }
+    return;
+  }
+  setProviderFeedback('Whisper local ativo (sem custo de API).');
 }
 
 function renderModelList(currentModel, cacheState) {
@@ -91,9 +144,13 @@ function renderModelList(currentModel, cacheState) {
 
   modelsList.querySelectorAll('.use-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      await chrome.storage.sync.set({ model: btn.dataset.model });
+      await chrome.storage.sync.set({
+        model: btn.dataset.model,
+        transcriptionProvider: 'local',
+      });
       await refreshUI();
-      setFeedback(`Modelo ativo: ${formatModel(btn.dataset.model)}.`);
+      setFeedback(`Modelo ativo: ${formatModel(btn.dataset.model)} (Whisper local).`);
+      setProviderFeedback('Whisper local ativo (sem custo de API).');
     });
   });
 
@@ -165,4 +222,9 @@ function formatModel(modelId) {
 function setFeedback(message, isError = false) {
   feedback.textContent = message;
   feedback.style.color = isError ? '#ff9b9b' : '#89d9c8';
+}
+
+function setProviderFeedback(message, isError = false) {
+  providerFeedback.textContent = message;
+  providerFeedback.style.color = isError ? '#ff9b9b' : '#89d9c8';
 }
