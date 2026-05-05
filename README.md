@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)](https://github.com)
 
-**Transcreva mensagens de voz do WhatsApp Web no seu próprio navegador — com Whisper rodando localmente (sem servidor e sem custo de API).**
+**Transcreva mensagens de voz do WhatsApp Web com Groq ou Whisper local no navegador.**
 
 *Por **Ariel Sousa** — feedbacks, ideias e contribuições são muito bem-vindos.*
 
@@ -37,13 +37,15 @@
 ## <img src="https://cdn.simpleicons.org/whatsapp/25D366" width="16" alt="WhatsApp icon" /> Como usar
 
 1. Abra [web.whatsapp.com](https://web.whatsapp.com/)
-2. Em uma mensagem de voz, use o botão **Transcrever**
-3. Opcional: clique no ícone da extensão para escolher o modelo Whisper e gerenciar o cache local
+2. Clique no ícone da extensão e escolha o provedor:
+   - **Groq:** cole sua `GROQ_API_KEY` para transcrever com mais velocidade e qualidade
+   - **Whisper local:** sem API, com processamento local no navegador
+3. Em uma mensagem de voz, use o botão **Transcrever**
 
 ## <img src="https://cdn.simpleicons.org/securityscorecard/6B7280" width="16" alt="Privacy icon" /> Privacidade
 
-- A transcrição é feita **localmente** no seu computador (via WASM no Chrome).
-- Não enviamos o áudio para serviços de terceiros para transcrever — o fluxo foi pensado para **não depender de API paga** para a etapa de Whisper.
+- No modo **Whisper local**, a transcrição é feita no seu computador (via WASM no Chrome).
+- No modo **Groq**, o áudio é enviado para a API da Groq usando a chave informada pelo usuário.
 
 ## <img src="https://cdn.simpleicons.org/files/9CA3AF" width="16" alt="Files icon" /> Estrutura principal
 
