@@ -38,11 +38,13 @@
 /* ── Resultado inline ─────────────────────────────────────────────────────── */
 
 .wpp-tr-msg-result {
+  display: inline-block;
+  max-width: min(640px, 95%);
   margin: 4px 4px 6px 4px;
-  border-radius: 3px;
-  font-size: 12.5px;
+  border-radius: 6px;
+  font-size: 12px;
   font-family: inherit;
-  line-height: 1.5;
+  line-height: 1.35;
   word-break: break-word;
   box-shadow: 0 1px 4px rgba(0,0,0,.2);
   overflow: hidden;
@@ -59,7 +61,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: 4px 7px;
   cursor: pointer;
   user-select: none;
   gap: 6px;
@@ -103,8 +105,8 @@
 .wpp-tr-result-body {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  padding: 8px 10px 9px 10px;
+  gap: 4px;
+  padding: 6px 8px;
 }
 .wpp-tr-result-body.wpp-tr-collapsed {
   display: none;
@@ -117,7 +119,7 @@
 }
 .wpp-tr-msg-result[data-type="loading"] .wpp-tr-result-header { display: none; }
 .wpp-tr-msg-result[data-type="loading"] .wpp-tr-result-body {
-  padding: 8px 10px;
+  padding: 6px 8px;
   font-style: italic;
 }
 
@@ -133,7 +135,7 @@
   color: #f5c6c6 !important;
 }
 .wpp-tr-msg-result[data-type="error"] .wpp-tr-result-header { display: none; }
-.wpp-tr-msg-result[data-type="error"] .wpp-tr-result-body { padding: 8px 10px; }
+.wpp-tr-msg-result[data-type="error"] .wpp-tr-result-body { padding: 6px 8px; }
 
 .wpp-tr-result-text {
   flex: 1;

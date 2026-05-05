@@ -15,6 +15,34 @@
       --danger: #d64545;
       --line: #1f2c33;
     }
+    html, body {
+      scrollbar-width: thin;
+      scrollbar-color: #2f5f54 #0d1a20;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-track {
+      background: #0d1a20;
+      border-radius: 999px;
+    }
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb,
+    *::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #1f4e43, #2b7a67);
+      border-radius: 999px;
+      border: 2px solid #0d1a20;
+    }
+    html::-webkit-scrollbar-thumb:hover,
+    body::-webkit-scrollbar-thumb:hover,
+    *::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #267864, #33a083);
+    }
     body {
       width: 360px;
       background: var(--bg);
@@ -34,10 +62,12 @@
       background: linear-gradient(180deg, #12362e, #102a24);
     }
     .brand-logo {
-      width: 100%;
+      width: 78%;
       display: block;
       border-radius: 8px;
       margin-bottom: 8px;
+      margin-left: auto;
+      margin-right: auto;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(0, 0, 0, 0.2);
     }
@@ -47,6 +77,16 @@
     .section:first-of-type { border-top: none; }
     .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
     select {
+      width: 100%;
+      margin-top: 8px;
+      background: #0f171c;
+      color: var(--text);
+      border: 1px solid #28414b;
+      border-radius: 8px;
+      padding: 9px;
+      outline: none;
+    }
+    input {
       width: 100%;
       margin-top: 8px;
       background: #0f171c;
@@ -108,7 +148,21 @@
     <div class="header">
       <img class="brand-logo" src="assets/WATranscribe-Texto-e-Icon.png" alt="WATranscribe logo" />
       <div class="title">WATranscribe</div>
-      <div class="subtitle">Controle de modelos locais (Whisper)</div>
+      <div class="subtitle">Transcricao local ou via API da Groq</div>
+    </div>
+
+    <div class="section">
+      <div class="label">Provedor de transcricao</div>
+      <select id="providerSelect">
+        <option value="groq">Groq (recomendado)</option>
+        <option value="local">Whisper local (sem API)</option>
+      </select>
+      <input id="groqApiKeyInput" type="password" placeholder="Cole sua GROQ_API_KEY" autocomplete="off" />
+      <div class="hint">Groq e o provedor mais recomendado para velocidade e qualidade na transcricao.</div>
+      <div class="row">
+        <button id="saveProviderBtn" class="btn-primary">Salvar provedor</button>
+      </div>
+      <div id="providerFeedback" class="feedback"></div>
     </div>
 
     <div class="section">
