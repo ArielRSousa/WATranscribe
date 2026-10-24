@@ -42,17 +42,25 @@ scanForAudioMessages();
 
 // Wrapper único para botão + resultado, abaixo do player
 function getResultWrapper(msgContainer) {
-  const next = msgContainer.nextElementSibling;
-  if (next?.classList.contains('wpp-tr-wrapper')) return next;
-  const wrapper = document.createElement('div');
-  wrapper.className = 'wpp-tr-wrapper';
-  msgContainer.insertAdjacentElement('afterend', wrapper);
+  // The data-id node spans the whole row. Anchor to the actual bubble instead.
+  const player = msgContainer.querySelector('canvas');
+  const bubble = player?.closest('[data-testid="msg-container"]');
+  const host = bubble && msgContainer.contains(bubble) ? bubble : msgContainer;
+  let wrapper = host.querySelector('.wpp-tr-wrapper');
+  const oldSibling = msgContainer.nextElementSibling;
+  if (!wrapper && oldSibling?.classList.contains('wpp-tr-wrapper')) wrapper = oldSibling;
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'wpp-tr-wrapper';
+  }
+  if (wrapper.parentElement !== host) host.appendChild(wrapper);
   return wrapper;
 }
 
 function addTranscribeBtn(msgContainer) {
   // Usa dataset para evitar duplicata
-  if (msgContainer.hasAttribute('data-wpp-tr-done')) return;
+  const existing = getResultWrapper(msgContainer);
+  if (existing.querySelector('.wpp-tr-msg-btn') || existing.querySelector('[data-type="success"]')) return;
   msgContainer.setAttribute('data-wpp-tr-done', '1');
 
   const messageId = msgContainer.getAttribute('data-id');
@@ -104,7 +112,7 @@ function handleTranscription(msgContainer, btn, messageId) {
       // Fire-and-forget: resultado vem por onMessage (transcriptionResult)
       // para não depender do canal do service worker ficar aberto.
       getTranscriptionSettings().then(({ model, provider, groqApiKey }) => {
-        const providerLabel = provider === 'local'
+        const providerLabel = provider === 'server' ? 'servidor' : provider === 'local'
           ? `Whisper local (${model.split('/')[1] || 'base'})`
           : 'Groq';
         showResult(msgContainer, `Preparando transcricao (${providerLabel})...`, 'loading');
@@ -247,8 +255,8 @@ function getTranscriptionSettings() {
     chrome.storage.sync.get(['model', 'transcriptionProvider', 'groqApiKey'], (data) => {
       resolve({
         model: data.model || 'Xenova/whisper-base',
-        provider: data.transcriptionProvider || 'groq',
-        groqApiKey: data.groqApiKey || '',
+        provider: 'server',
+        groqApiKey: '',
       });
     });
   });

@@ -4,43 +4,48 @@
 
   // ── Encontra a mensagem pelo data-id ─────────────────────────────────────────
 
+  function collectionModels(collection) {
+    if (!collection) return [];
+    if (typeof collection.getModelsArray === 'function') return collection.getModelsArray();
+    if (Array.isArray(collection.models)) return collection.models;
+    const models = [];
+    collection.forEach?.(model => models.push(model));
+    return models;
+  }
+
+  function matchesMessageId(msg, messageId) {
+    const key = msg?.id;
+    const serialized = key?._serialized ?? (typeof key === 'string' ? key : '');
+    if (serialized === messageId) return true;
+    // DOM uses the stanza ID alone. Group serialized IDs additionally end
+    // with the participant, so endsWith(stanzaId) never matched group audio.
+    if (typeof key?.id === 'string' && key.id === messageId) return true;
+    const parts = serialized.split('_');
+    return /^(true|false)$/.test(parts[0]) && parts[2] === messageId;
+  }
+
   function findMsg(messageId) {
     const col = window.require('WAWebCollections');
-
-    // 1) Direto na coleção global
-    const direct = col?.Msg?.get?.(messageId);
+    let direct;
+    try { direct = col?.Msg?.get?.(messageId); } catch (_) { /* some versions expect a MsgKey */ }
     if (direct) return direct;
 
-    // 2) Chat ativo → chat.msgs
-    const chatCol = col?.Chat;
-    const chats = chatCol?.models
-      ?? (chatCol && Symbol.iterator in Object(chatCol) ? [...chatCol] : []);
-    const activeChat =
-      chatCol?.active ??
-      chats.find(c => c.active) ??
-      chats.find(c => c.isOpen);
-
-    if (activeChat) {
-      const fromChat = activeChat.msgs?.get?.(messageId);
-      if (fromChat) return fromChat;
-
-      let found = null;
-      activeChat.msgs?.forEach?.(m => {
-        if (found) return;
-        const s = m?.id?._serialized ?? String(m?.id ?? '');
-        if (s === messageId || s.endsWith('_' + messageId)) found = m;
-      });
-      if (found) return found;
+    const chats = collectionModels(col?.Chat);
+    const activeChat = col?.Chat?.active ?? chats.find(c => c.active || c.isOpen);
+    if (activeChat && typeof activeChat === 'object') {
+      const matches = collectionModels(activeChat.msgs).filter(m => matchesMessageId(m, messageId));
+      if (matches.length === 1) return matches[0];
     }
 
-    // 3) Varredura global
-    let found = null;
-    col?.Msg?.forEach?.(m => {
-      if (found) return;
-      const s = m?.id?._serialized ?? String(m?.id ?? '');
-      if (s === messageId || s.endsWith('_' + messageId)) found = m;
-    });
-    return found;
+    // Some versions do not expose an active chat or keep its messages in Msg.
+    // Search loaded collections and fail on ambiguity instead of using another audio.
+    const candidates = [...collectionModels(col?.Msg), ...chats.flatMap(c => collectionModels(c.msgs))];
+    const matches = new Map();
+    for (const msg of candidates) {
+      if (!matchesMessageId(msg, messageId)) continue;
+      matches.set(msg.id?._serialized || msg, msg);
+    }
+    return matches.size === 1 ? matches.values().next().value : null;
   }
 
   // ── Estratégia 1: DownloadManager do WhatsApp ─────────────────────────────

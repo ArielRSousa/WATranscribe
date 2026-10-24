@@ -1,78 +1,108 @@
 <div align="center">
 
-<img src="extension/assets/WATranscribe-Texto-e-Icon.png" alt="WATranscribe — transcrição de áudios do WhatsApp Web com Whisper local" width="420" />
+<img src="extension/assets/WATranscribe-Texto-e-Icon.png" alt="WATranscribe" width="280" />
 
+# WATranscribe
 
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/)
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![Whisper](https://img.shields.io/badge/Whisper-local-00A884?logo=openai&logoColor=white)](https://github.com/openai/whisper)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)](https://github.com)
+**Seus áudios do WhatsApp, por escrito. Sem login extra, token ou API key.**
 
-**Transcreva mensagens de voz do WhatsApp Web com Groq ou Whisper local no navegador.**
+![Versão](https://img.shields.io/badge/versão-3.0.4-00A884)
+![Manifest V3](https://img.shields.io/badge/Chrome-Manifest_V3-4285F4)
+[![Licença MIT](https://img.shields.io/badge/licença-MIT-yellow.svg)](LICENSE)
 
-*Por **Ariel Sousa** — feedbacks, ideias e contribuições são muito bem-vindos.*
-
-</div>
-
----
-
-## <img src="https://cdn.simpleicons.org/googlechrome/4285F4" width="16" alt="Chrome icon" /> O que é
-
-**WATranscribe** é uma extensão para o Google Chrome que adiciona um botão **Transcrever** nas mensagens de áudio do [WhatsApp Web](https://web.whatsapp.com/). O áudio é obtido via APIs internas do WhatsApp (no contexto da página) e a transcrição roda em um documento **offscreen** com **Whisper** via **WebAssembly** (`@xenova/transformers`).
-
-## <img src="https://cdn.simpleicons.org/checkmarx/00A884" width="16" alt="Checklist icon" /> Requisitos
-
-- Google Chrome (ou outro navegador compatível com extensões **Manifest V3**)
-- Conta e sessão ativa no **WhatsApp Web**
-- Conexão com a internet na **primeira** execução de cada modelo (download e cache dos pesos no navegador)
-
-## <img src="https://cdn.simpleicons.org/googlechrome/4285F4" width="16" alt="Install icon" /> Como instalar (modo desenvolvedor)
-
-1. Abra `chrome://extensions`
-2. Ative **Modo do desenvolvedor**
-3. Clique em **Carregar sem compactação**
-4. Selecione a pasta `extension/` deste repositório
-
-## <img src="https://cdn.simpleicons.org/whatsapp/25D366" width="16" alt="WhatsApp icon" /> Como usar
-
-1. Abra [web.whatsapp.com](https://web.whatsapp.com/)
-2. Clique no ícone da extensão e escolha o provedor:
-   - **Groq:** cole sua `GROQ_API_KEY` para transcrever com mais velocidade e qualidade
-   - **Whisper local:** sem API, com processamento local no navegador
-3. Em uma mensagem de voz, use o botão **Transcrever**
-
-## <img src="https://cdn.simpleicons.org/securityscorecard/6B7280" width="16" alt="Privacy icon" /> Privacidade
-
-- No modo **Whisper local**, a transcrição é feita no seu computador (via WASM no Chrome).
-- No modo **Groq**, o áudio é enviado para a API da Groq usando a chave informada pelo usuário.
-
-## <img src="https://cdn.simpleicons.org/files/9CA3AF" width="16" alt="Files icon" /> Estrutura principal
-
-| Arquivo / pasta | Função |
-|------------------|--------|
-| `extension/manifest.json` | Manifesto MV3, permissões e ícones |
-| `extension/content.js` | UI na página do WhatsApp (mundo isolado) |
-| `extension/injected.js` | Acesso ao `window.require` / download de mídia (mundo principal) |
-| `extension/background.js` | Service worker e roteamento para o offscreen |
-| `extension/offscreen.js` | Carrega Whisper e transcreve |
-| `extension/assets/` | Logos e recursos visuais |
-
-## <img src="https://cdn.simpleicons.org/github/ffffff" width="16" alt="GitHub icon" /> Feedbacks e contribuições
-
-Este projeto está em evolução. Se algo quebrar após uma atualização do WhatsApp Web, se tiver sugestão de UX ou quiser abrir um PR:
-
-- Abra uma **issue** descrevendo o comportamento esperado vs. atual e, se possível, um print ou passos para reproduzir
-- **Pull requests** são bem-vindos (documentação, correções de layout, robustez contra mudanças do DOM, etc.)
-
-## Autoria
-
-**Ariel Sousa** — criador e mantenedor do **WATranscribe**.
-
----
-
-<div align="center">
-
-Obrigado por testar o projeto.
+Por **Ariel Sousa**
 
 </div>
+
+## Como funciona
+
+A extensão adiciona um botão **Transcrever** abaixo das mensagens de voz no WhatsApp Web. Clique para converter o áudio em texto, com controles para copiar, recolher ou fechar a transcrição.
+
+- Conversas individuais e grupos, para áudios enviados e recebidos.
+- Transcrição junto ao balão original, com quebra de linha para textos longos.
+- Interface simples, sem configurar servidor ou credenciais.
+- Processamento online pelo servidor do projeto e pela Groq, com `whisper-large-v3-turbo` em português.
+
+A versão atual depende de internet e não oferece transcrição local/offline. O projeto usa interfaces internas do WhatsApp, que podem mudar; correções podem ser necessárias após atualizações.
+
+## Instalar
+
+É necessário um navegador Chromium compatível com Manifest V3, como Chrome ou Brave, e uma sessão ativa no WhatsApp Web.
+
+1. Baixe o repositório em **Code → Download ZIP** e extraia, ou clone:
+
+   ```bash
+   git clone https://github.com/ArielRSousa/WATranscribe.git
+   ```
+
+2. Abra `chrome://extensions` (ou `brave://extensions`).
+3. Ative **Modo do desenvolvedor**.
+4. Clique em **Carregar sem compactação** e selecione a pasta `extension/`.
+5. Abra ou atualize o [WhatsApp Web](https://web.whatsapp.com/).
+
+A instalação documentada aqui é manual; este repositório não fornece um link de publicação na Chrome Web Store.
+
+## Usar
+
+1. Abra uma conversa e encontre uma mensagem de voz.
+2. Clique em **Transcrever** abaixo do áudio.
+3. Aguarde o texto e use os botões para copiar, recolher ou fechar.
+
+O popup da extensão mostra a disponibilidade do serviço e um atalho para o WhatsApp. Não é preciso criar uma conta no WATranscribe.
+
+**Para atualizar:** substitua os arquivos da extensão, clique em **Recarregar** na página de extensões e atualize as abas do WhatsApp Web.
+
+## Limites e disponibilidade
+
+| Limite | Valor atual |
+| --- | --- |
+| Tamanho do áudio | Até 3 MB |
+| Tentativas por rede/IP | 5 por minuto e 20 por dia |
+| Tentativas de todo o serviço | 100 por dia |
+
+Pessoas na mesma rede podem compartilhar a cota. As janelas de uso começam na primeira tentativa e os identificadores de rede são renovados diariamente em UTC. A disponibilidade também depende da Groq, Vercel e Redis. Quando houver limite temporário, aguarde o prazo informado antes de tentar novamente.
+
+## Privacidade
+
+Somente ao clicar em **Transcrever**, o áudio escolhido é enviado ao servidor hospedado na Vercel e à Groq. O código da aplicação não grava áudios nem transcrições em banco de dados. Os provedores têm suas próprias políticas de processamento e registros técnicos.
+
+Para controlar o uso, o servidor mantém contadores temporários no Redis associados a um identificador derivado do IP. As chaves Groq permanecem no servidor, fora da extensão.
+
+Leia a [política de privacidade](https://watranscribe-api.vercel.app/privacy.html).
+
+## Servidor e desenvolvimento
+
+O servidor público está em [watranscribe-api.vercel.app](https://watranscribe-api.vercel.app). Para hospedar sua própria instância, consulte o [guia do servidor](server/README.md) e o [exemplo de variáveis](server/.env.example). O endereço do servidor usado pela extensão é fixo; uma instância própria exige ajustá-lo nos arquivos da extensão e nas permissões do manifesto.
+
+| Pasta / arquivo | Responsabilidade |
+| --- | --- |
+| `extension/manifest.json` | Manifesto, versão e permissões |
+| `extension/content.js` e `styles.css` | Botões e transcrições nas conversas |
+| `extension/injected.js` | Localização da mensagem e obtenção do áudio |
+| `extension/background.js` e `offscreen.js` | Encaminhamento da transcrição ao servidor |
+| `extension/popup.html`, `popup.js` e `popup.css` | Interface da extensão |
+| `server/api/` | Disponibilidade e transcrição |
+| `server/lib/service.js` | Integração Groq e limites no Redis |
+| `server/public/` | Página pública e política de privacidade |
+| `tests/` | Testes automatizados com cenários simulados |
+
+Com Node.js 22, execute na raiz:
+
+```bash
+node --test tests/*.test.*
+```
+
+Os testes cobrem interface, localização de mensagens de grupos, posicionamento dos controles e tratamento de erros da API. São testes com simulações; não substituem a validação de uma transcrição real no WhatsApp.
+
+## Solução de problemas
+
+- **Botão ausente ou layout antigo:** recarregue a extensão e atualize a aba do WhatsApp.
+- **Mensagem não encontrada:** atualize para a versão mais recente, reabra a conversa e tente novamente.
+- **Serviço indisponível:** tente novamente mais tarde. Na hospedagem própria, confira as variáveis da Vercel e a conexão Redis.
+- **Áudio muito grande:** use um áudio de até 3 MB.
+
+## Contribuir
+
+Abra uma [issue](https://github.com/ArielRSousa/WATranscribe/issues) com a versão da extensão, o comportamento observado e os passos para reproduzir. Ao compartilhar capturas, oculte mensagens e dados pessoais. Pull requests são bem-vindos.
+
+Projeto independente, sem vínculo oficial com WhatsApp ou Meta. Licenciado sob a [MIT](LICENSE).

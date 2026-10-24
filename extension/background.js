@@ -11,7 +11,7 @@ async function ensureOffscreen() {
   await chrome.offscreen.createDocument({
     url: OFFSCREEN_URL,
     reasons: ['AUDIO_PLAYBACK'],
-    justification: 'Executar o modelo Whisper via WebAssembly para transcrição de áudio',
+    justification: 'Processar a solicitação de transcrição de áudio em segundo plano',
   });
 }
 
@@ -28,14 +28,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const tabId = sender.tab?.id;
     ensureOffscreen()
       .then(async () => {
-        const stored = await chrome.storage.sync.get(['transcriptionProvider', 'groqApiKey']);
-        const provider = msg.provider || stored.transcriptionProvider || 'groq';
-        const groqApiKey = msg.groqApiKey || stored.groqApiKey || '';
 
         return chrome.runtime.sendMessage({
           ...msg,
-          provider,
-          groqApiKey,
+          provider: 'server',
+          groqApiKey: undefined,
+          serverUrl: 'https://watranscribe-api.vercel.app',
+          serverToken: undefined,
           target: 'offscreen',
           tabId,
         });
