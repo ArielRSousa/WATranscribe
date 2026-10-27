@@ -25,6 +25,27 @@ A extensão adiciona um botão **Transcrever** abaixo das mensagens de voz no Wh
 
 A versão atual depende de internet e não oferece transcrição local/offline. O projeto usa interfaces internas do WhatsApp, que podem mudar; correções podem ser necessárias após atualizações.
 
+## Veja funcionando
+
+**Texto junto ao áudio:** clique em Transcrever e leia o resultado na própria conversa.
+
+![Mensagens de voz com botão Transcrever e resultado em texto; nomes e fotos ocultados](docs/images/transcricao-na-conversa.png)
+
+<details>
+<summary>Ver a interface da extensão e o estado de transcrição</summary>
+
+**Popup da extensão:** disponibilidade do serviço e atalho para o WhatsApp Web.
+
+<img src="docs/images/interface-da-extensao.png" alt="Popup do WATranscribe com serviço disponível e botão Abrir WhatsApp Web" width="640" />
+
+**Durante o processamento:** o botão informa que o áudio está sendo transcrito.
+
+![Mensagem de voz com indicação de transcrição em andamento](docs/images/transcricao-em-andamento.png)
+
+</details>
+
+As capturas mostram a extensão. O userscript do Tampermonkey reutiliza os botões e a caixa de transcrição na conversa, sem o popup da extensão.
+
 ## Instalar
 
 É necessário um navegador Chromium compatível com Manifest V3, como Chrome ou Brave, e uma sessão ativa no WhatsApp Web.
@@ -41,6 +62,25 @@ A versão atual depende de internet e não oferece transcrição local/offline. 
 5. Abra ou atualize o [WhatsApp Web](https://web.whatsapp.com/).
 
 A instalação documentada aqui é manual; este repositório não fornece um link de publicação na Chrome Web Store.
+
+## Usar pelo Tampermonkey
+
+Você também pode usar o WATranscribe como **userscript**, sem instalar a extensão manualmente e sem esperar a publicação na loja. Ele usa o mesmo servidor, sem login adicional ou API key.
+
+1. Instale o **Tampermonkey** pelo [site oficial](https://www.tampermonkey.net/), escolhendo a versão para seu navegador.
+2. Se você já usa a extensão WATranscribe, desative-a para evitar conflitos. Mantenha apenas uma versão ativa.
+3. Com o Tampermonkey instalado, abra **[Instalar WATranscribe no Tampermonkey](https://watranscribe-api.vercel.app/watranscribe.user.js)**.
+4. Na tela do Tampermonkey, confira o script e clique em **Instalar**.
+5. Se o navegador solicitar permissão para executar userscripts, abra `chrome://extensions` ou `brave://extensions`, entre em **Detalhes** do Tampermonkey e habilite **Permitir scripts de usuário**. Em versões anteriores, pode ser necessário ativar **Modo do desenvolvedor**. Consulte a [orientação oficial](https://www.tampermonkey.net/faq.php#Q209).
+6. Abra ou atualize o [WhatsApp Web](https://web.whatsapp.com/).
+7. Em uma mensagem de voz, clique em **Transcrever**. No primeiro clique da aba, leia o aviso de envio e confirme se deseja continuar.
+8. Aguarde o resultado e use os controles para copiar, recolher ou fechar o texto.
+
+**Se o link abrir somente o código:** no menu do Tampermonkey, escolha **Criar novo script**, apague o modelo e cole todo o [código do WATranscribe](https://raw.githubusercontent.com/ArielRSousa/WATranscribe/main/userscripts/watranscribe.user.js). Salve com **Ctrl+S**, confira que o script está ativado e atualize o WhatsApp Web.
+
+**Se o botão não aparecer:** confirme que o Tampermonkey e o script estão ativos, que a execução de scripts de usuário está permitida e que a aba aberta é `https://web.whatsapp.com/`. Depois, recarregue a página.
+
+Os limites e a política de privacidade abaixo também se aplicam ao Tampermonkey. Veja o [guia completo do userscript](userscripts/README.md) para instalação alternativa e manutenção.
 
 ## Usar
 
